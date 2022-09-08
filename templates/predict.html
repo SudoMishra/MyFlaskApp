@@ -1,0 +1,34 @@
+<!-- templates/profile.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Welcome, {{ name }}!
+  {% if user_image%}
+    <br> {{ user_image }} </br>
+  {% endif %}
+</h1>
+
+<form method="post" enctype="multipart/form-data">
+  <!-- <label for="title">Ch</label> -->
+  <!-- <input name="title" id="title" value="{{ request.form['title'] }}" required> -->
+  <input type=file name=file>
+  <input type=submit value=Upload>
+</form>
+{% if user_image %}
+<img src="{{ url_for('static', filename=user_image) }}" alt="Mike" height="240px" width="300px">
+<form method="post" enctype="multipart/form-data">
+  <button type="submit">Predict</button>
+</form>
+{% endif %}
+{% if preds %}
+<h3>
+  Predicted : {{ preds }} Probability: {{ probs }} 
+</h3>
+<form method="post" enctype="multipart/form-data">
+  <button type=submit name=reupload value="yes">Reupload</button>
+</form>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,6 @@
+#ignore logs
+logs/
+__pycache__/
+app/__pycache__/
+auth/__pycache__/
+.DS_Store
