@@ -76,4 +76,4 @@
     ```
 15. The `app/` folder contains `mnist.py` which handles the main upload and predict tasks of the app.
 16. The `auth/` folder contains `routes.py` which handle logging and signup tasks of the app.
-17. `flask_app.py` is creates and initializes the flask app.
+17. `flask_app.py` creates and initializes the flask app.
