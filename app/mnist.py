@@ -8,10 +8,25 @@ import matplotlib.pyplot as plt
 import os
 import cv2
 import numpy as np
-
-# import tasks
+import requests
+import base64
+import json
 
 main = Blueprint('main', __name__)
+
+# from tasks import tasks.cel_get_predictions, tasks.cel_load_image, tasks.cel_load_model
+import tasks
+
+url = 'http://localhost:8501/v1/models/mnist:predict'
+
+def make_prediction(instances):
+   data = json.dumps({"signature_name": "serving_default", "instances": instances.tolist()})
+   headers = {"content-type": "application/json"}
+   json_response = requests.post(url, data=data, headers=headers)
+   print("In make predictions")
+   predictions = json.loads(json_response.text)['predictions']
+   return predictions
+
 
 def load_model():
     model = keras.models.load_model('./static/models/mnist_model_1.hdf5')
@@ -53,9 +68,12 @@ def show_img(user_name="Bob",fname="a.png"):
     # print(os.getcwd())
     print("Model Loaded in SHow")
     # print(user_name,fname)
-    img_path = os.path.join('uploads',fname)
-    img = load_image(os.path.join('.','static',img_path))
-    # img,img_path = tasks.load_image.delay(fname=fname)
+    # img_path = os.path.join('uploads',fname)
+    # img = load_image(os.path.join('.','static',img_path))
+    print(f"file : {fname}")
+    img,img_path = tasks.cel_load_image.delay(fname=fname)#.get()
+    json_load = json.loads(img)
+    img = np.asarray(json_load["img"])
     # preds = model.predict(img)
     # preds = np.argmax(preds,axis=1)
     # print(preds)
@@ -67,18 +85,28 @@ def show_img(user_name="Bob",fname="a.png"):
 def pred_img(user_name="Bob",fname="a.png"):
     if request.form.get('reupload') == 'yes':
         return redirect(url_for('main.predict'))
-    model = load_model()
-    # model = tasks.load_model.delay()
-    print(os.getcwd())
+    # model = load_model()
+    # model = load_model()
+    # print(os.getcwd())
     print("Model Loaded in Pred Img")
-    print(user_name,fname)
-    # img,img_path = tasks.load_image.delay(fname=fname)
-    # pred,probs = tasks.get_predictions.delay(model=model,img=img)
-
+    # print(user_name,fname)
+    # img,img_path = tasks.cel_load_image.delay(fname=fname).get()
+    # json_load = json.loads(img)
+    # img = np.asarray(json_load["img"])
     img_path = os.path.join('uploads',fname)
     img = load_image(os.path.join('.','static',img_path))
-    pred = model.predict(img)
-    pred, probs = np.argmax(pred,axis=1)[0], np.max(pred,axis=1)[0]
+    print("Image Loaded in pred img")
+    img = img.reshape(1,28,28,1)
+    probs = make_prediction(img)
+    print("GOt Predictions")
+
+    # print(type(probs))
+    pred,probs = np.argmax(probs[0]), np.max(probs[0])
+    # pred,probs = tasks.cel_get_predictions.delay(model=model,img=img).get()
+
+    
+    # pred = model.predict(img)
+    # pred, probs = np.argmax(pred,axis=1)[0], np.max(pred,axis=1)[0]
 
     # print(preds)
     # print(img_path)
